@@ -1,9 +1,12 @@
-import React from 'react'
+import { UserButton } from "@clerk/nextjs";
+import React from "react";
 
 const Header = () => {
   return (
-    <div>Header</div>
-  )
-}
+    <div className="flex justify-end p-6 shadow-sm">
+      <UserButton />
+    </div>
+  );
+};
 
-export default Header
+export default Header;
