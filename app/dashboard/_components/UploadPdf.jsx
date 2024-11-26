@@ -18,6 +18,7 @@ import { api } from "@/convex/_generated/api";
 import { generateUploadUrl } from "@/convex/fileStorage";
 import uuid4 from "uuid4";
 import { useUser } from "@clerk/nextjs";
+import axios from "axios";
 
 const UploadPdf = ({ children }) => {
   const [file, setFile] = useState(null);
@@ -31,25 +32,34 @@ const UploadPdf = ({ children }) => {
 
   const onUpload = async () => {
     setLoading(true);
-    const postUrl = await generateUrl();
-    const result = await fetch(postUrl, {
-      method: "POST",
-      headers: { "Content-Type": file?.type },
-      body: file,
-    });
-    
-    const { storageId } = await result.json();
-    const fileId = uuid4();
-    const fileUrl = await getFileUrl({ storageId });
+    // const postUrl = await generateUrl();
+    // const result = await fetch(postUrl, {
+    //   method: "POST",
+    //   headers: { "Content-Type": file?.type },
+    //   body: file,
+    // });
 
-    const resp = await insertFileEntry({
-      fileId,
-      storageId,
-      fileName: fileName??'Untitled File',
-      createdBy: user?.primaryEmailAddress?.emailAddress,
-      fileUrl: fileUrl
-    });
+    // const { storageId } = await result.json();
+    // const fileId = uuid4();
+    // const fileUrl = await getFileUrl({ storageId });
+
+    // const resp = await insertFileEntry({
+    //   fileId,
+    //   storageId,
+    //   fileName: fileName??'Untitled File',
+    //   createdBy: user?.primaryEmailAddress?.emailAddress,
+    //   fileUrl: fileUrl
+    // });
+
+    aiProcess()
+
     setLoading(false);
+  };
+
+  const aiProcess = async () => {
+    const apiResponse = await axios.get("/api/pdf-loader");
+
+    console.log(apiResponse.data);
   };
 
   const onFileSelect = (e) => {
@@ -74,7 +84,10 @@ const UploadPdf = ({ children }) => {
                 </div>
                 <div className="mt-2 flex flex-col items-start gap-2 w-full">
                   <label htmlFor="">File Name: </label>
-                  <Input onChange={(e) => setFileName(e.target.value)} placeholder="File Name" />
+                  <Input
+                    onChange={(e) => setFileName(e.target.value)}
+                    placeholder="File Name"
+                  />
                 </div>
               </div>
             </DialogDescription>
