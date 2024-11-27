@@ -3,17 +3,20 @@ import { WebPDFLoader } from "@langchain/community/document_loaders/web/pdf";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 
 
-const pdfUrl =
-  "https://uncommon-moose-903.convex.cloud/api/storage/8ff4a81a-22cc-4a40-ba3b-3e18cc4843a1";
 
 export async function GET(req) {
-  const pdfTextContent = await loadPdfFile();
+  const reqUrl = req.url;
+  const { searchParams} = new URL(reqUrl);
+  const pdfUrl = searchParams.get("pdfUrl");
+  console.log(pdfUrl)
+
+  const pdfTextContent = await loadPdfFile(pdfUrl);
 
   return NextResponse.json({ result: pdfTextContent });
 }
 
-const loadPdfFile = async () => {
-  const response = await fetch(pdfUrl);
+const loadPdfFile = async (url) => {
+  const response = await fetch(url);
   const data = await response.blob();
   const loader = new WebPDFLoader(data);
   const docs = await loader.load();
