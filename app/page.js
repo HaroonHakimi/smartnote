@@ -25,7 +25,7 @@ export default function Home() {
     <div>
       <h1>SmartNote</h1>
       <Link href={"/dashboard"}>
-        <Button>Dashboard</Button>
+        <Button>Hello</Button>
       </Link>
       <UserButton />
     </div>

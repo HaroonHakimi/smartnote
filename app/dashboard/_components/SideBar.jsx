@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import React from "react";
@@ -5,32 +6,59 @@ import React from "react";
 import { Layout, Shield } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import UploadPdf from "./UploadPdf";
+import { useUser } from "@clerk/nextjs";
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { usePathname } from "next/navigation";
+import Link from "next/link";
 
 const SideBar = () => {
+  const { user } = useUser();
+  const path = usePathname();
+
+  const fileList = useQuery(api.fileStorage.getUserFiles, {
+    userEmail: user?.primaryEmailAddress?.emailAddress,
+  });
   return (
     <div className="shadow-md h-screen p-7 ">
       <Image src={"/logo.svg"} alt="logo" width={75} height={75} />
       <div className="mt-10">
-        <UploadPdf>
+        <UploadPdf isMaxFile={fileList?.length >= 5}>
           <Button className="w-100">Upload PDF</Button>
         </UploadPdf>
-        <SideBarComp text="Workspace" component={Layout} />
-        <SideBarComp text="Upgrade" component={Shield} />
+        <Link href={"/dashboard"} className="text-inherit no-underline">
+          <div
+            className={`${path === "/dashboard" ? " bg-slate-200" : ""} rounded-lg `}
+          >
+            <SideBarComp text="Workspace" component={Layout} />
+          </div>
+        </Link>
+        <Link
+        className="text-inherit no-underline"
+         href={"/dashboard/upgrade"}>
+          <div
+            className={`text-inherit no-underline ${path === "/dashboard/upgrade" ? " bg-slate-200" : ""} rounded-lg`}
+          >
+            <SideBarComp text="Upgrade" component={Shield} />
+          </div>
+        </Link>
       </div>
       <div className="absolute bottom-20 w-[80%] space-y-2">
-        <Progress value={33} />
-        <p className="text-sm ">2/5 Pdf Uploaded</p>
-        <p className="text-sm  text-gray-400">Upgrade to Uplaod more PDF's</p>
+        <Progress value={(fileList?.length / 5) * 100} />
+        <p className="text-sm ">{fileList?.length} out of 5 Pdf's Uploaded </p>
+        <p className="text-sm  text-gray-400">Upgrade to Upload more PDF's</p>
       </div>
     </div>
   );
 };
 
 const SideBarComp = ({ text, component: Component }) => {
+  const path = usePathname();
+
   return (
     <div
-      className="flex items-center  gap-2 p-3 mt-2 hover:bg-slate-200 rounded-lg
-        transition duration-300 ease-in-out cursor-pointer"
+      className={`flex items-center  gap-2 p-3 mt-2 hover:bg-slate-200 rounded-lg
+        transition duration-300 ease-in-out cursor-pointer`}
     >
       <Component width={25} height={25} />
       <h3 className="text-[18px]">{text}</h3>
