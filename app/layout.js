@@ -2,8 +2,8 @@ import "./globals.css";
 import { Outfit } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import Provider from "./Provider";
-import 'bootstrap/dist/css/bootstrap.css';
-
+import "bootstrap/dist/css/bootstrap.css";
+import { Toaster } from "@/components/ui/sonner";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -21,6 +21,7 @@ export default function RootLayout({ children }) {
       <html lang="en">
         <body className={`${outfit.className}  antialiased`}>
           <Provider>{children}</Provider>
+          <Toaster />
         </body>
       </html>
     </ClerkProvider>

@@ -19,10 +19,16 @@ const Workspace = () => {
   
   return (
     <div>
-      <WorkspaceHeader />
+      <WorkspaceHeader fileName={fileInfo?.fileName} />
       <div className="grid grid-cols-2 gap-5">
-        <div><TextEditor /></div>
-        <div><PdfViewer fileUrl={fileInfo?.fileUrl}/></div>
+        <div><TextEditor fileId={fileId} /></div>
+        <div>
+          {fileInfo?.fileUrl ? (
+            <PdfViewer fileUrl={fileInfo.fileUrl} />
+          ) : (
+            <div>Loading PDF Viewer...</div>
+          )}
+        </div>
       </div>
     </div>
   );

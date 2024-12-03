@@ -19,8 +19,9 @@ import { generateUploadUrl } from "@/convex/fileStorage";
 import uuid4 from "uuid4";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
+import { toast } from "sonner";
 
-const UploadPdf = ({ children }) => {
+const UploadPdf = ({ children, isMaxFile }) => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [fileName, setFileName] = useState("");
@@ -63,6 +64,7 @@ const UploadPdf = ({ children }) => {
           splitText: apiResponse.data.result,
           fileId,
         }); 
+        toast('File is ready')
       } else {
         console.error("No result key in API response:", apiResponse.data);
       }
@@ -78,10 +80,10 @@ const UploadPdf = ({ children }) => {
     setFile(e.target.files[0]);
   };
   return (
-    <div>
+    <div className="">
       <Dialog open={open}>
         <DialogTrigger asChild>
-          <Button onClick={() => setOpen(true)}>Upload Pdf File</Button>
+          <Button disabled={isMaxFile} onClick={() => setOpen(true)}>Upload Pdf File</Button>
         </DialogTrigger>
         
         <DialogContent>

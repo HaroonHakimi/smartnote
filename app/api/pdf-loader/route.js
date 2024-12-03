@@ -11,6 +11,7 @@ export async function GET(req) {
   console.log(pdfUrl)
 
   const pdfTextContent = await loadPdfFile(pdfUrl);
+  
 
   return NextResponse.json({ result: pdfTextContent });
 }
