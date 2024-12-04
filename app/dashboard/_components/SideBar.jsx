@@ -16,6 +16,10 @@ const SideBar = () => {
   const { user } = useUser();
   const path = usePathname();
 
+  const getUserInfo = useQuery(api?.user?.getUserInfo, {
+    email: user?.primaryEmailAddress?.emailAddress,
+  });
+
   const fileList = useQuery(api.fileStorage.getUserFiles, {
     userEmail: user?.primaryEmailAddress?.emailAddress,
   });
@@ -23,7 +27,7 @@ const SideBar = () => {
     <div className="shadow-md h-screen p-7 ">
       <Image src={"/logo.svg"} alt="logo" width={75} height={75} />
       <div className="mt-10">
-        <UploadPdf isMaxFile={fileList?.length >= 5}>
+        <UploadPdf isMaxFile={fileList?.length >= 5 && !getUserInfo.upgrade}>
           <Button className="w-100">Upload PDF</Button>
         </UploadPdf>
         <Link href={"/dashboard"} className="text-inherit no-underline">
@@ -33,28 +37,26 @@ const SideBar = () => {
             <SideBarComp text="Workspace" component={Layout} />
           </div>
         </Link>
-        <Link
-        className="text-inherit no-underline"
-         href={"/dashboard/upgrade"}>
+        <Link className="text-inherit no-underline" href={"/dashboard/upgrade"}>
           <div
             className={`text-inherit no-underline ${path === "/dashboard/upgrade" ? " bg-slate-200" : ""} rounded-lg`}
           >
             <SideBarComp text="Upgrade" component={Shield} />
           </div>
         </Link>
-      </div>
-      <div className="absolute bottom-20 w-[80%] space-y-2">
-        <Progress value={(fileList?.length / 5) * 100} />
-        <p className="text-sm ">{fileList?.length} out of 5 Pdf's Uploaded </p>
-        <p className="text-sm  text-gray-400">Upgrade to Upload more PDF's</p>
-      </div>
+      </div>{" "}
+      {!getUserInfo?.upgrade && (
+        <div className="absolute bottom-20 w-[80%] space-y-2">
+          <Progress value={(fileList?.length / 5) * 100} />
+          <p className="text-sm ">{fileList?.length} out of 5 PDFs Uploaded </p>
+          <p className="text-sm text-gray-400">Upgrade to upload more PDFs</p>
+        </div>
+      )}
     </div>
   );
 };
 
 const SideBarComp = ({ text, component: Component }) => {
-  const path = usePathname();
-
   return (
     <div
       className={`flex items-center  gap-2 p-3 mt-2 hover:bg-slate-200 rounded-lg
