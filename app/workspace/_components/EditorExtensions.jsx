@@ -2,7 +2,19 @@ import { chatSession } from "@/configs/AiModel";
 import { api } from "@/convex/_generated/api";
 import { useUser } from "@clerk/nextjs";
 import { useAction, useMutation } from "convex/react";
-import { Bold, Code, Highlighter, Italic, Sparkle, Sparkles, Subscript, Underline } from "lucide-react";
+import {
+  AlignCenter,
+  AlignLeft,
+  AlignRight,
+  Bold,
+  Code,
+  Highlighter,
+  Italic,
+  Sparkle,
+  Sparkles,
+  Subscript,
+  Underline,
+} from "lucide-react";
 import { useParams } from "next/navigation";
 
 import React from "react";
@@ -28,54 +40,95 @@ const EditorExtensions = ({ editor }) => {
     editor.chain().focus().toggleUnderline().run();
   };
 
-  const subscript = () => {
-    editor.chain().focus().toggleSubscript().run();
+  const align = (dir) => {
+    editor.chain().focus().setTextAlign(dir).run()
   };
 
   const SearchAi = useAction(api.myAction.search);
 
   const onAiClick = async () => {
-    toast('Getting your answer...')
-    
+    toast("Getting your answer...");
+
     const selectedText = editor.state.doc.textBetween(
       editor.state.selection.from,
       editor.state.selection.to,
-      ' '
-    )
-    console.log(selectedText)
+      " "
+    );
+    console.log("Selected Text:", selectedText);
 
-    const result = await SearchAi({
-      query: selectedText,
-      fileId: fileId,
-    });
+    try {
+      const result = await SearchAi({
+        query: selectedText,
+        fileId: fileId,
+      });
 
-    console.log("Unformatted answer", result);
-    
-    const unformattedAns = JSON.parse(result);
-    console.log(unformattedAns);
-    let allUnformattedAns = '';
-    
-    unformattedAns && unformattedAns.forEach(item => {
-      allUnformattedAns += item.pageContent;
-    });
+      console.log("Unformatted answer", result);
 
-    const PROMPT = `Using the following question and content:
+      let allUnformattedAns = "";
 
-Question: "${selectedText}"
-Answer Content: "${allUnformattedAns}"
+      if (Array.isArray(result)) {
+        result.forEach((item) => {
+          allUnformattedAns += item.pageContent;
+        });
+      } else if (result && typeof result === "object") {
+        allUnformattedAns = result.pageContent || ""; // Adjust based on structure
+      } else if (typeof result === "string") {
+        allUnformattedAns = result;
+      } else {
+        console.error("Unexpected result format:", result);
+      }
 
-Please format the answer content into a complete, well-structured HTML response. Ensure it includes appropriate tags for paragraphs, headings, lists (if applicable), and any other relevant HTML elements. Do not request additional input; format it fully within the response.`;
+      const PROMPT = `Using the following question and content:
+                      Question: "${selectedText}"
+                      Answer Content: "${allUnformattedAns}"
+                      Please format the answer content into a complete, well-structured HTML response.
+                       Ensure it includes appropriate tags for paragraphs, headings, lists (if applicable), and any other relevant HTML elements.
+                       only answer the question refrain from any extra information.
+                       Do not request additional input; format it fully within the response.`;
 
-    const aiModelResult = await chatSession.sendMessage(PROMPT)
+      const aiModelResult = await chatSession.sendMessage(PROMPT);
+      const finalAnswer = aiModelResult.response
+        .text()
+        .replaceAll("```", "")
+        .replace("html", "");
 
-    console.log(aiModelResult.response.text());
+      const allText = editor.getHTML();
 
-    saveNotes({
-      notes: editor.getHTML(),
-      fileId: fileId,
-      createdBy: user?.primaryEmailAddress?.emailAddress
-    })
-  }
+      editor.commands.setContent(
+        `${allText} <p><strong></strong>${finalAnswer}</p>`
+      );
+
+      await saveNotes({
+        notes: editor.getHTML(),
+        fileId: fileId,
+        createdBy: user?.primaryEmailAddress?.emailAddress,
+      });
+    } catch (error) {
+      console.error("Error in onAiClick:", error);
+      toast("Error occurred while fetching AI response");
+    }
+  };
+
+  const testSearchAi = useAction(api.myAction.search);
+
+  const testingAiProcess = async () => {
+    const query = editor.state.doc.textBetween(
+      editor.state.selection.from,
+      editor.state.selection.to,
+      ""
+    );
+
+    try {
+      const result = await testSearchAi({
+        query,
+        fileId,
+      });
+      console.log("Formatted Answer:", result);
+      toast(result); // Optionally display the result in a toast
+    } catch (error) {
+      console.error("Error fetching AI response:", error);
+    }
+  };
 
   return (
     editor && (
@@ -110,20 +163,27 @@ Please format the answer content into a complete, well-structured HTML response.
           editor={editor}
           Component={Underline}
         />
-        <SingleExtension
-          classname="subscript"
-          func={subscript}
-          editor={editor}
-          Component={Subscript}
-        />
-
-        <button
-        onClick={() => onAiClick()}
-        className="hover:text-blue-500"
-        >
-          <Sparkles/>
+        <button onClick={onAiClick} className="hover:text-blue-500">
+          <Sparkles />
         </button>
-        
+        {/* <SingleExtension
+          classname="textAlign: 'right'"
+          func={() => align('right')}
+          editor={editor}
+          Component={AlignRight}
+        />
+        <SingleExtension
+          classname="textAlign: 'left'"
+          func={() => align('left')}
+          editor={editor}
+          Component={AlignLeft}
+        />
+        <SingleExtension
+          classname=''
+          func={() => align('center')}
+          editor={editor}
+          Component={AlignCenter}
+        /> */}
       </div>
     )
   );
