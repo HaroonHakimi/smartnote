@@ -1,3 +1,4 @@
+// "use node"
 import { ConvexVectorStore } from "@langchain/community/vectorstores/convex";
 import { action } from "./_generated/server.js";
 import { GoogleGenerativeAIEmbeddings } from "@langchain/google-genai";
@@ -41,7 +42,7 @@ export const search = action({
       { ctx }
     );
 
-    const resultOne = await vectorStore.similaritySearch(args.query, 1);
+    const resultOne = await vectorStore.similaritySearch(args.query, 5);
     console.log("Raw similarity search results:", resultOne);
 
     const filteredResults = resultOne.filter(
@@ -52,3 +53,8 @@ export const search = action({
     return JSON.stringify(filteredResults);
   },
 });
+
+
+
+
+

@@ -2,8 +2,6 @@ import { NextResponse } from "next/server";
 import { WebPDFLoader } from "@langchain/community/document_loaders/web/pdf";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 
-
-
 export async function GET(req) {
   const reqUrl = req.url;
   const { searchParams} = new URL(reqUrl);

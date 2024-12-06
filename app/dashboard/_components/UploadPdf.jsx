@@ -20,12 +20,14 @@ import uuid4 from "uuid4";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const UploadPdf = ({ children, isMaxFile }) => {
   const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [fileName, setFileName] = useState("");
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   const { user } = useUser();
   const generateUrl = useMutation(api.fileStorage.generateUploadUrl);
@@ -68,6 +70,7 @@ const UploadPdf = ({ children, isMaxFile }) => {
       } else {
         console.error("No result key in API response:", apiResponse.data);
       }
+      router.push(`/workspace/${fileId}`);
     } catch (error) {
       console.error("Error during upload:", error);
     } finally {
