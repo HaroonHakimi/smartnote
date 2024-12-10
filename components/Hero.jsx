@@ -4,6 +4,7 @@ import { Button } from "./ui/button";
 import Image from "next/image";
 import Pointer from "./Pointer";
 import { motion, useAnimate } from "framer-motion";
+import { toast } from "sonner";
 const Hero = () => {
   const [leftDesignScope, leftDesignAnimate] = useAnimate();
   const [leftPointerScope, leftPointerAnimate] = useAnimate();
@@ -13,7 +14,7 @@ const Hero = () => {
   useEffect(() => {
     leftDesignAnimate([
       [leftDesignScope.current, { opacity: 1 }, { duration: 0.5 }],
-      [leftDesignScope.current, { y: 0, x: 0 }, { duration: 0.5 }],
+      [leftDesignScope.current, { y: 0, x: -50 }, { duration: 0.5 }],
     ]);
 
     leftPointerAnimate([
@@ -28,22 +29,36 @@ const Hero = () => {
 
     rightDesignAnimate([
       [rightDesignScope.current, { opacity: 1 }, { duration: 0.5, delay: 1.5 }],
-      [rightDesignScope.current, { y: 0, x: 0 }, { duration: 0.5}],
+      [rightDesignScope.current, { y: 0, x: 0 }, { duration: 0.5 }],
     ]);
 
     rightPointerAnimate([
-      [rightPointerScope.current, { opacity: 1 }, { duration: 0.5, delay: 1.5 }],
+      [
+        rightPointerScope.current,
+        { opacity: 1 },
+        { duration: 0.5, delay: 1.5 },
+      ],
       [rightPointerScope.current, { y: -0, x: 220 }, { duration: 0.5 }],
-      [rightPointerScope.current, {x: 75, y: [0, 20, 0] }, { duration: 1, ease: "easeInOut" }],
-    ])
+      [
+        rightPointerScope.current,
+        { x: 75, y: [0, 20, 0] },
+        { duration: 1, ease: "easeInOut" },
+      ],
+    ]);
   }, []);
 
   return (
-    <section className="text-white/80 py-24 overflow-x-clip">
+    <section
+      style={{
+        cursor: `url('/cursor-you.svg'), auto`,
+      }}
+      className="text-white/80 py-24 overflow-x-clip"
+    >
       <div className="container relative">
         <motion.div
           ref={leftDesignScope}
           initial={{ opacity: 0, y: 100, x: -100 }}
+          drag
           className="absolute -left-32 top-16 hidden lg:block"
         >
           <Image
@@ -51,6 +66,7 @@ const Hero = () => {
             src="/pic1.png"
             width={250}
             height={250}
+            draggable="false"
           />
         </motion.div>
         <motion.div
@@ -61,11 +77,18 @@ const Hero = () => {
           <Pointer name="Haroon" />
         </motion.div>
         <motion.div
+          drag
           initial={{ opacity: 0, y: 100, x: 100 }}
           ref={rightDesignScope}
           className="absolute -right-56 -top-16 hidden lg:block"
         >
-          <Image alt="Upgrade Image" width={300} height={300} src="/pic2.png" />
+          <Image
+            draggable="false"
+            alt="Upgrade Image"
+            width={300}
+            height={300}
+            src="/pic2.png"
+          />
         </motion.div>
 
         <motion.div
@@ -92,15 +115,18 @@ const Hero = () => {
           </p>
           <form
             className="flex justify-between borderColour rounded-full p-2 mt-8 max-w-lg"
-            action=""
+            onSubmit={(event) => {
+              // event.preventDefault(); // Prevent default form submission
+              toast("Message sent"); // Show the toast notification
+            }}
           >
             <input
-              className="bg-transparent px-4 md:flex-1"
+              className="bg-transparent px-4 md:flex-1 rounded-full outline-none"
               type="email"
-              placeholder="Enter your email"
+              placeholder="Send us your email"
             />
             <Button className="h-10" type="submit" variant="secondary">
-              Sign up
+              Send
             </Button>
           </form>
         </div>

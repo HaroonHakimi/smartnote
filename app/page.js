@@ -23,13 +23,9 @@ export default function Home() {
     user && checkUser();
   }, [user]);
   return (
-    <div className="bg-black h-screen">
+    <div className="bg-black">
       <LandingPage/>
-      <h1>SmartNote</h1>
-      <Link href={"/dashboard"}>
-        <Button variant="secondary">Hello</Button>
-      </Link>
-      <UserButton />
+      
     </div>
   );
 }

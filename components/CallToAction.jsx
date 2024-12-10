@@ -37,7 +37,7 @@ const CallToAction = () => {
           onMouseLeave={() => setIsHovered(false)}
         >
           {Array.from({ length: 10 }).map((_, i) => (
-            <Link key={i} href="/" className="no-underline text-inherit">
+            <Link key={i} href="/dashboard" className="no-underline text-inherit">
               <div className="flex items-center gap-16 ">
                 <span className="text-indigo-700">&#10038;</span>
                 <span className="group-hover:text-indigo-700">

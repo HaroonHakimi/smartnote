@@ -25,7 +25,7 @@ const Footer = () => {
               {footerLinks.map((link, index) => (
                 <Link 
                 key={index}
-                className="text-inherit no-underline text-sm " 
+                className="text-inherit no-underline text-sm hover:text-white transition delay-50 ease-in" 
                 href={link.href}>
                   {link.label}
                 </Link>

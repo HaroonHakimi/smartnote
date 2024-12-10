@@ -25,7 +25,9 @@ const SideBar = () => {
   });
   return (
     <div className="shadow-md h-screen p-7 ">
-      <Image src={"/logo.svg"} alt="logo" width={75} height={75} />
+      <Link href={'/'} className="text-inherit no-underline ">
+      <Image  src={"/logo.svg"} alt="logo" width={75} height={75} />
+      </Link>
       <div className="mt-10">
         <UploadPdf isMaxFile={fileList?.length >= 5 && !getUserInfo.upgrade}>
           <Button className="w-100">Upload PDF</Button>
