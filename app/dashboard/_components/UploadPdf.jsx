@@ -15,7 +15,6 @@ import { Button } from "@/components/ui/button";
 import { Loader2Icon } from "lucide-react";
 import { useAction, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { generateUploadUrl } from "@/convex/fileStorage";
 import uuid4 from "uuid4";
 import { useUser } from "@clerk/nextjs";
 import axios from "axios";
@@ -37,36 +36,33 @@ const UploadPdf = ({ children, isMaxFile }) => {
 
   const onUpload = async () => {
     setLoading(true);
-    const postUrl = await generateUrl();
-    const result = await fetch(postUrl, {
-      method: "POST",
-      headers: { "Content-Type": file?.type },
-      body: file,
-    });
-
-    const { storageId } = await result.json();
-    const fileId = uuid4();
-    const fileUrl = await getFileUrl({ storageId });
-
-    const resp = await insertFileEntry({
-      fileId,
-      storageId,
-      fileName: fileName??'Untitled File',
-      createdBy: user?.primaryEmailAddress?.emailAddress,
-      fileUrl: fileUrl
-    });
-
     try {
+      const postUrl = await generateUrl();
+      const result = await fetch(postUrl, {
+        method: "POST",
+        headers: { "Content-Type": file?.type },
+        body: file,
+      });
+
+      const { storageId } = await result.json();
+      const fileId = uuid4();
+      const fileUrl = await getFileUrl({ storageId });
+
+      await insertFileEntry({
+        fileId,
+        storageId,
+        fileName: fileName || "Untitled File",
+        createdBy: user?.primaryEmailAddress?.emailAddress,
+        fileUrl,
+      });
+
       const apiResponse = await axios.get(`/api/pdf-loader?pdfUrl=${fileUrl}`);
-      console.log("API Response:", apiResponse.data); 
-  
       if (apiResponse.data?.result) {
-        console.log("Result:", apiResponse.data.result); 
         await embedDocuments({
           splitText: apiResponse.data.result,
           fileId,
-        }); 
-        toast('File is ready')
+        });
+        toast("File is ready");
       } else {
         console.error("No result key in API response:", apiResponse.data);
       }
@@ -82,22 +78,23 @@ const UploadPdf = ({ children, isMaxFile }) => {
   const onFileSelect = (e) => {
     setFile(e.target.files[0]);
   };
+
   return (
-    <div className="">
-      <Dialog open={open}>
+    <div>
+      <Dialog open={open} onOpenChange={setOpen}>
         <DialogTrigger asChild>
-          <Button disabled={isMaxFile} onClick={() => setOpen(true)}>Upload Pdf File</Button>
+          <div onClick={() => !isMaxFile && setOpen(true)}>{children}</div>
         </DialogTrigger>
-        
+
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Upload Pdf File</DialogTitle>
+            <DialogTitle>Upload PDF File</DialogTitle>
             <DialogDescription asChild>
-              <div className="mt-3s flex flex-col gap-2 items-start">
+              <div className="mt-3 flex flex-col gap-2 items-start">
                 <div>Select a file to Upload: </div>
-                <div className="w-full flex flex-col items-start gap-2 p-3 border rounded-md  ">
+                <div className="w-full flex flex-col items-start gap-2 p-3 border rounded-md">
                   <input
-                    onChange={(e) => onFileSelect(e)}
+                    onChange={onFileSelect}
                     type="file"
                     accept="application/pdf"
                   />
@@ -116,11 +113,14 @@ const UploadPdf = ({ children, isMaxFile }) => {
             <Button onClick={onUpload} disabled={loading} className="w-full">
               {loading ? <Loader2Icon className="animate-spin" /> : "Upload"}
             </Button>
-            <DialogClose asChild>
-              <Button className="w-full" type="button" variant="ghost">
-                Close
-              </Button>
-            </DialogClose>
+            <Button
+              onClick={() => setOpen(false)}
+              className="w-full"
+              type="button"
+              variant="ghost"
+            >
+              Close
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

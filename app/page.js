@@ -1,4 +1,5 @@
 "use client";
+import LandingPage from "@/components/LandingPage";
 import { Button } from "@/components/ui/button";
 import { api } from "@/convex/_generated/api";
 import { UserButton, useUser } from "@clerk/nextjs";
@@ -22,12 +23,9 @@ export default function Home() {
     user && checkUser();
   }, [user]);
   return (
-    <div>
-      <h1>SmartNote</h1>
-      <Link href={"/dashboard"}>
-        <Button>Hello</Button>
-      </Link>
-      <UserButton />
+    <div className="bg-black">
+      <LandingPage/>
+      
     </div>
   );
 }
